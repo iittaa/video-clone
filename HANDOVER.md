@@ -47,13 +47,20 @@
 - ✅ 要件定義書（`REQUIREMENTS.md`）
 - ✅ CLAUDE.md（プロジェクト指示書）
 - ✅ HANDOVER.md（このドキュメント）
+- ✅ git init & GitHub公開リポジトリ作成（https://github.com/iittaa/video-clone）
+- ✅ .gitignore 作成
+- ✅ 全未決事項を確定（2026-04-29）
+  - 動画生成AI: Seedance 1.5 Pro（fal.ai）
+  - キャラ一貫性: B（ゆるく頑張る）
+  - 失敗判定: A（全部出す）
+  - 量: 月30本生成（約$100/月）
+  - BGM: フリー素材から選択
 
 ### 未着手
-- ⬜ git init
-- ⬜ pyproject.toml（または package.json）
-- ⬜ .env テンプレート
-- ⬜ 開発環境のセットアップ
-- ⬜ 動画生成AIの第一候補決定
+- ⬜ pyproject.toml（uv で初期化）
+- ⬜ .env.example テンプレート
+- ⬜ 開発環境のセットアップ（venv作成）
+- ⬜ APIキー取得（OpenAI / fal.ai）
 - ⬜ 実装開始
 
 ---
@@ -62,26 +69,17 @@
 
 優先度高い順：
 
-### 1. 未決事項の議論
-`REQUIREMENTS.md` の「9. 未決事項」を詰める：
-- 動画生成AIのデフォルト選定（Kling / Sora 2 / Veo 3 / Seedance）
-- キャラの一貫性をどこまで頑張るか
-- 失敗動画の判定方法
-- 量の目標値
-- BGMの取扱い
-
-### 2. プロジェクト初期化
-- `git init`
-- 言語選定（Python推奨：AI系ライブラリが豊富、yt-dlp連携が楽）
-- 依存管理（uv / poetry / pipenv のどれか）
+### 1. プロジェクト初期化（実施中）
+- 言語：Python（uv で管理）
+- pyproject.toml 作成
 - `.env.example` 作成
+- 仮想環境セットアップ
 
-### 3. APIキー取得
+### 2. APIキー取得（オーナー作業）
 - OpenAI（GPT-4 Vision、GPT Image 2.0、Whisper、TTS）
 - fal.ai（動画生成AI窓口）
-- Google AI（Gemini Vision、必要なら）
 
-### 4. Phase 1 実装着手
+### 3. Phase 1 実装着手
 - yt-dlp で動画ダウンロード
 - 動画解析パートから着手
 
