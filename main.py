@@ -8,7 +8,7 @@ import yt_dlp
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+load_dotenv(override=True)
 
 app = typer.Typer(help="参考動画クローン生成システム", no_args_is_help=True)
 
