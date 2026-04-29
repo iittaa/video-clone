@@ -50,18 +50,65 @@
 - ✅ git init & GitHub公開リポジトリ作成（https://github.com/iittaa/video-clone）
 - ✅ .gitignore 作成
 - ✅ 全未決事項を確定（2026-04-29）
-  - 動画生成AI: Seedance 1.5 Pro（fal.ai）
-  - キャラ一貫性: B（ゆるく頑張る）
-  - 失敗判定: A（全部出す）
-  - 量: 月30本生成（約$100/月）
-  - BGM: フリー素材から選択
+- ✅ プロジェクト初期化（uv + Python 3.12、依存パッケージ追加）
+- ✅ APIキー設定（OpenAI / fal.ai を `.env` にローカル保存、gitignore済み）
+- ✅ Phase 1 実装完了（download / transcribe / analyze）
+- ✅ Phase 2 実装完了（generate-character / generate-clip / synthesize）
+- ✅ Phase 3 実装完了（compose、HyperFrames経由）
+
+### 動作確認済み（2026-04-29時点）
+- ✅ transcribe（筋トレ.mp4 → 約1円）
+- ✅ analyze（GPT-4o low detail、約2円）
+- ✅ generate-character（gpt-image-1 low、約2円）
+- ✅ synthesize（gpt-4o-mini-tts + nova、1円未満）
+
+### 動作確認未実施
+- ⏳ generate-clip（fal.ai 残高ゼロでロック中、要チャージ）
+- ⏳ compose（クリップ生成後の通しテスト）
 
 ### 未着手
-- ⬜ pyproject.toml（uv で初期化）
-- ⬜ .env.example テンプレート
-- ⬜ 開発環境のセットアップ（venv作成）
-- ⬜ APIキー取得（OpenAI / fal.ai）
-- ⬜ 実装開始
+- ⬜ パイプライン統合コマンド（`clone <URL>` で全工程実行）
+- ⬜ BGM パート（フリー素材選定・取得・合成）
+
+---
+
+## 既知の注意点
+
+### fal.ai の残高
+- 2026-04-29時点でアカウント残高ゼロ → ロック状態
+- 解除には https://fal.ai/dashboard/billing でチャージ
+- 5秒1本=$0.26、テスト最低$5、本格運用月$78想定
+
+### `.env` の優先度
+- ローカル環境に既存の `OPENAI_API_KEY` があると競合する
+- `load_dotenv(override=True)` で `.env` 優先になるよう実装済み
+
+### ffprobe 不在対応
+- システムに ffmpeg はあるが ffprobe が無い環境向けに、ffmpeg stderr から動画長を正規表現で取得する実装にしている
+
+---
+
+## CLI コマンド一覧
+
+```
+uv run main.py download <URL>                       # yt-dlp で動画DL
+uv run main.py transcribe <video_path>              # Whisper 書き起こし
+uv run main.py analyze <video_path> [--transcript]  # GPT-4o 構成解析
+uv run main.py generate-character <analysis_json>   # GPT Image でキャラ画像
+uv run main.py generate-clip <analysis_json> -i N   # Seedance で1カット生成
+uv run main.py synthesize <transcript_json>         # TTS でナレーション
+uv run main.py compose <analysis_json>              # HyperFrames で最終合成
+```
+
+### 標準出力先
+- `cache/videos/<id>.mp4` — DL動画
+- `cache/transcripts/<stem>.json` — 書き起こし
+- `cache/analysis/<stem>.json` — 構成解析
+- `cache/images/<stem>/character.png` — キャラ画像
+- `cache/clips/<stem>/NNN.mp4` — カット動画
+- `cache/audio/<stem>/voiceover.mp3` — ナレーション
+- `cache/compositions/<stem>/index.html` — HyperFrames composition
+- `output/<stem>.mp4` — 最終MP4
 
 ---
 
@@ -69,19 +116,26 @@
 
 優先度高い順：
 
-### 1. プロジェクト初期化（実施中）
-- 言語：Python（uv で管理）
-- pyproject.toml 作成
-- `.env.example` 作成
-- 仮想環境セットアップ
+### 1. fal.ai 課金 → 動画クリップ生成テスト（オーナー作業）
+- https://fal.ai/dashboard/billing で最低 $5 チャージ
+- `uv run main.py generate-clip cache/analysis/筋トレ.json -i 0` で1カット生成テスト
+- 5秒1本=約40円
 
-### 2. APIキー取得（オーナー作業）
-- OpenAI（GPT-4 Vision、GPT Image 2.0、Whisper、TTS）
-- fal.ai（動画生成AI窓口）
+### 2. パイプライン統合コマンド `clone <URL>` 追加
+- download → transcribe → analyze → generate-character → generate-clip × N → synthesize → compose を1コマンドで実行
+- 「URL入れたらボタン1つで動画完成」の要件達成
+- main.py に追加するだけ、各機能は既に実装済み
 
-### 3. Phase 1 実装着手
-- yt-dlp で動画ダウンロード
-- 動画解析パートから着手
+### 3. 全カット生成 → compose で初の通しテスト
+- 解析結果10カット分の generate-clip を実行（合計約400円）
+- compose で繋ぎ合わせ → output/筋トレ.mp4 が初のクローン動画
+- 失敗動画は判定なし全部出す（要件A）
+
+### 4. 細部の調整
+- TTS の声・話し方を品質見て切替（gpt-4o-mini-tts → ElevenLabs 等）
+- BGM パート（フリー素材選定）
+- カット間トランジションの改善（現状は0.3秒クロスフェード）
+- キャラ一貫性の昇格（B → C / Reference Image運用、必要なら）
 
 ---
 
