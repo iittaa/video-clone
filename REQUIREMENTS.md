@@ -163,22 +163,30 @@
 [出力] 動画ファイル（mp4, 9:16）
 ```
 
-### 6.2 ディレクトリ構成（予定）
+### 6.2 ディレクトリ構成
 
 ```
 video-clone/
 ├── REQUIREMENTS.md
-├── README.md
+├── HANDOVER.md
+├── CLAUDE.md
+├── pyproject.toml
+├── uv.lock
+├── main.py                       # CLI エントリポイント（typer 登録のみ）
 ├── src/
-│   ├── analyze.py        # Step 2: 動画解析
-│   ├── generate_image.py # Step 3: キャラ画像生成
-│   ├── generate_video.py # Step 4: 動画生成
-│   ├── synthesize.py     # Step 5: 音声合成
-│   ├── edit.py           # Step 6: 編集
-│   └── main.py           # CLI エントリポイント
-├── output/               # 生成された動画
-├── cache/                # 中間生成物
-└── .env                  # API キー
+│   ├── __init__.py
+│   ├── ffmpeg_utils.py           # ffmpeg ヘルパー（duration / フレーム抽出）
+│   ├── download.py               # Step 1: yt-dlp ダウンロード
+│   ├── transcribe.py             # Step 2-1: Whisper 書き起こし
+│   ├── analyze.py                # Step 2-2: GPT-4o Vision 構成解析
+│   ├── generate_character.py     # Step 3: GPT Image キャラ生成
+│   ├── generate_clip.py          # Step 4: fal.ai Seedance 動画生成
+│   ├── synthesize.py             # Step 5: OpenAI TTS 音声合成
+│   ├── compose.py                # Step 6: HyperFrames 合成
+│   └── clone.py                  # 全工程統合コマンド
+├── cache/                        # 中間生成物（gitignore）
+├── output/                       # 生成された動画（gitignore）
+└── .env                          # API キー（gitignore）
 ```
 
 ---
